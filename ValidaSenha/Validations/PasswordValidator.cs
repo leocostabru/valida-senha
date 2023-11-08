@@ -8,7 +8,7 @@ public class PasswordValidator : AbstractValidator<Password>
     public PasswordValidator()
     {
         RuleFor(password => password.Senha)
-            .NotEmpty().WithMessage("A senha não pode ser vazia.")
+            .NotEmpty().WithMessage("Senha não pode ser vazia.")
             .MinimumLength(6).WithMessage("A senha deve ter no mínimo 6 caracteres.")
             .Must(HaveUpperCase).WithMessage("A senha deve conter pelo menos 1 letra maiúscula.")
             .Must(HaveDigit).WithMessage("A senha deve conter pelo menos um número.")
