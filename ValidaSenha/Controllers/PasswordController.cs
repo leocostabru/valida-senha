@@ -1,7 +1,5 @@
-using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
-using ValidaSenha.Models;
-using ValidaSenha.Validation;
+using ValidaSenha.Dto;
 
 namespace ValidaSenha.Controllers;
 
@@ -10,16 +8,45 @@ namespace ValidaSenha.Controllers;
 public class PasswordController : ControllerBase
 {
     [HttpPost("password")]
-    public IActionResult ValidatePassword([FromBody] Password senha)
+    public IActionResult ValidatePassword([FromBody] PasswordDto passwordDto)
     {
-        var validator = new PasswordValidator();
-            ValidationResult result = validator.Validate(senha);
+        IActionResult isValidPassword = PasswordValidator(passwordDto.Password); 
 
-            if (result.IsValid)
-            {
-                return Ok(new { Message = "Senha válida!" });
-            }
+        if (isValidPassword is OkResult)
+        {
+            return Ok(new { Message = "Senha válida!" });
+        }
 
-            return BadRequest(new { Message = "Senha inválida", Errors = result.Errors.Select(error => error.ErrorMessage) });
+        return BadRequest(new { Message = "Senha invalida"});
+    }
+
+    private IActionResult PasswordValidator(string password)
+    {
+        if (password.Length < 6)
+        {
+            return BadRequest(new { Message = "A senha deve conter 6 ou mais caracteres."});
+        }
+
+        if (!password.Any(char.IsUpper))
+        {
+            return BadRequest(new { Message = "A senha deve conter pelo menos uma letra maiuscula."});
+        }
+        
+        if (!password.Any(char.IsLower))
+        {
+            return BadRequest(new { Message = "A senha deve conter pelo menos 1 letra minuscula."});
+        }
+        
+        if (!password.Any(char.IsDigit))
+        {
+            return BadRequest(new { Message = "A senha deve conter pelo menos 1 numero."});
+        }
+        
+        if(!password.Any(c => "*!_?".Contains(c)))
+        {
+            return BadRequest(new { Message = "A senha deve conter pelo menos 1 caracter especial (*!_?)."});
+        }
+
+        return Ok(password);
     }
 }
